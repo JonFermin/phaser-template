@@ -1,20 +1,21 @@
 import Phaser from "phaser";
 
-export class BootScene extends Phaser.Scene {
+export class Preloader extends Phaser.Scene {
   constructor() {
-    super({ key: "BootScene" });
+    super("Preloader");
   }
 
-  preload() {
-    // Progress bar background
+  init() {
     const { width, height } = this.scale;
     const barX = width / 2 - 160;
     const barY = height / 2;
 
+    // Progress bar background
     const bg = this.add.graphics();
     bg.fillStyle(0x444444, 1);
     bg.fillRect(barX, barY, 320, 20);
 
+    // Progress bar fill
     const fill = this.add.graphics();
 
     this.load.on("progress", (value: number) => {
@@ -27,14 +28,17 @@ export class BootScene extends Phaser.Scene {
       bg.destroy();
       fill.destroy();
     });
+  }
 
-    // Placeholder load — replace with your actual assets
+  preload() {
+    // Load all game assets here
     // Example: this.load.image('player', 'assets/images/player.png');
+    // Example: this.load.spritesheet('character', 'assets/images/character.png', { frameWidth: 32, frameHeight: 32 });
     // Example: this.load.audio('bgm', 'assets/audio/bgm.mp3');
+    // Example: this.load.tilemapTiledJSON('level1', 'assets/data/level1.json');
   }
 
   create() {
-    // Pass data to the next scene to demonstrate scene data transfer
-    this.scene.start("MainScene", { startedAt: Date.now() });
+    this.scene.start("MainMenu");
   }
 }
