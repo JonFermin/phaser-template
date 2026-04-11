@@ -1,29 +1,36 @@
 import Phaser from "phaser";
 
 export class MainScene extends Phaser.Scene {
+  private box!: Phaser.Physics.Arcade.Sprite;
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private moveSpeed = 200;
+
   constructor() {
     super({ key: "MainScene" });
   }
 
+  // Receives data from the previous scene; reset instance state here
+  init(data: { startedAt?: number }) {
+    if (data.startedAt) {
+      console.log(`Game started at ${new Date(data.startedAt).toISOString()}`);
+    }
+  }
+
   create() {
-    // Create a simple colored rectangle as the bouncing object
+    // Generate a simple box texture
     const graphics = this.add.graphics();
     graphics.fillStyle(0x6c63ff, 1);
     graphics.fillRoundedRect(0, 0, 60, 60, 10);
     graphics.generateTexture("box", 60, 60);
     graphics.destroy();
 
-    const box = this.physics.add.sprite(400, 300, "box");
-    box.setCollideWorldBounds(true);
-    box.setBounce(1);
-    box.setVelocity(
-      Phaser.Math.Between(-200, 200),
-      Phaser.Math.Between(-200, 200),
-    );
+    // Physics sprite
+    this.box = this.physics.add.sprite(400, 300, "box");
+    this.box.setCollideWorldBounds(true);
+    this.box.setBounce(0.2);
 
-    // Ensure minimum velocity so it doesn't appear stuck
-    if (Math.abs(box.body!.velocity.x) < 100) box.setVelocityX(150);
-    if (Math.abs(box.body!.velocity.y) < 100) box.setVelocityY(150);
+    // Input — action map via cursor keys
+    this.cursors = this.input.keyboard!.createCursorKeys();
 
     // Title text
     const title = this.add.text(400, 80, "Phaser Game", {
@@ -37,7 +44,7 @@ export class MainScene extends Phaser.Scene {
     const instructions = this.add.text(
       400,
       520,
-      "Edit src/scenes/MainScene.ts to start building",
+      "Arrow keys to move — Edit src/scenes/MainScene.ts to start building",
       {
         fontSize: "16px",
         color: "#888888",
@@ -45,5 +52,29 @@ export class MainScene extends Phaser.Scene {
       },
     );
     instructions.setOrigin(0.5);
+
+    // Clean up on scene shutdown to prevent stale listeners
+    this.events.on("shutdown", this.shutdown, this);
+  }
+
+  update(_time: number, _delta: number) {
+    const body = this.box.body as Phaser.Physics.Arcade.Body;
+    body.setVelocity(0);
+
+    if (this.cursors.left.isDown) {
+      body.setVelocityX(-this.moveSpeed);
+    } else if (this.cursors.right.isDown) {
+      body.setVelocityX(this.moveSpeed);
+    }
+
+    if (this.cursors.up.isDown) {
+      body.setVelocityY(-this.moveSpeed);
+    } else if (this.cursors.down.isDown) {
+      body.setVelocityY(this.moveSpeed);
+    }
+  }
+
+  shutdown() {
+    this.events.off("shutdown", this.shutdown, this);
   }
 }
