@@ -1,10 +1,10 @@
-# phaser-template
+# phaser-template-refine
 
-Phaser 3 game template using TypeScript and Vite with 5-scene lifecycle.
+Refined Phaser 3 game template with entity pattern, input controller, and centralized config.
 
 ## Quick Reference
 
-See [AI_RULES.md](./AI_RULES.md) for all coding conventions, architecture rules, and common patterns. Always follow them.
+See [AI_RULES.md](./AI_RULES.md) for all coding conventions, architecture rules, entity pattern, and input handling. Always follow them.
 
 ## Commands
 
@@ -15,14 +15,16 @@ See [AI_RULES.md](./AI_RULES.md) for all coding conventions, architecture rules,
 
 ## Project Structure
 
-- `src/main.ts` — entry point, exports `StartGame()` and creates Phaser.Game
+- `src/main.ts` — entry point, creates Phaser.Game
+- `src/config.ts` — game constants and scene keys
 - `src/scenes/` — Boot, Preloader, MainMenu, Game, GameOver
-- `src/entities/` — game object classes
+- `src/entities/` — game object classes with `update()` methods
+- `src/input/` — InputController for keyboard handling
 - `src/utils/` — utility functions
-- `public/assets/` — static game assets
 
 ## Key Rules
 
-- Follow the 5-scene lifecycle: Boot -> Preloader -> MainMenu -> Game -> GameOver
-- Use Arcade Physics by default (Matter.js only if explicitly needed)
+- Use scene keys from `src/config.ts` (`SCENES` constant) for transitions
+- Entities accept dependencies via `update()` — never grab globals or `scene.input` directly
+- Use InputController from `src/input/` — instantiate in scene `create()`, pass to entities in `update()`
 - No React, no HTML DOM rendering, no CSS UI libraries — use Phaser's Text/Graphics for UI
