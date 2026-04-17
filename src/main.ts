@@ -1,9 +1,9 @@
 import Phaser from "phaser";
-import { Boot } from "./scenes/Boot";
-import { Preloader } from "./scenes/Preloader";
-import { MainMenu } from "./scenes/MainMenu";
-import { Game } from "./scenes/Game";
-import { GameOver } from "./scenes/GameOver";
+import { Boot } from "@scenes/Boot";
+import { Preloader } from "@scenes/Preloader";
+import { MainMenu } from "@scenes/MainMenu";
+import { Game } from "@scenes/Game";
+import { GameOver } from "@scenes/GameOver";
 
 export function StartGame(parent: string) {
   const config: Phaser.Types.Core.GameConfig = {
@@ -21,7 +21,7 @@ export function StartGame(parent: string) {
       default: "arcade",
       arcade: {
         gravity: { x: 0, y: 0 },
-        debug: false,
+        debug: import.meta.env.DEV,
       },
     },
     scene: [Boot, Preloader, MainMenu, Game, GameOver],
@@ -30,4 +30,8 @@ export function StartGame(parent: string) {
   return new Phaser.Game(config);
 }
 
-StartGame("game-container");
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => StartGame("game-container"));
+} else {
+  StartGame("game-container");
+}

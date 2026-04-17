@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { fadeToScene } from "@utils/transition";
 
 export class GameOver extends Phaser.Scene {
   constructor() {
@@ -25,7 +26,7 @@ export class GameOver extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.input.once("pointerdown", () => {
-      this.scene.start("MainMenu");
+      fadeToScene(this, "MainMenu");
     });
   }
 }

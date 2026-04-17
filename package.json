@@ -1,19 +1,26 @@
 {
-  "name": "dyad-phaser-game",
+  "name": "phaser-template",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "build:dev": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "phaser": "^3.90.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
     "typescript": "~5.7.2",
-    "vite": "^6.3.4"
+    "typescript-eslint": "^8.58.2",
+    "vite": "^6.3.4",
+    "vitest": "^4.1.4"
   }
 }

@@ -1,9 +1,10 @@
 import Phaser from "phaser";
+import { Player } from "@entities/Player";
+import { EventBus } from "@utils/EventBus";
 
 export class Game extends Phaser.Scene {
-  private box!: Phaser.Physics.Arcade.Sprite;
+  private player!: Player;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-  private moveSpeed = 200;
 
   constructor() {
     super("Game");
@@ -12,22 +13,9 @@ export class Game extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    // Generate a simple box texture
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x6c63ff, 1);
-    graphics.fillRoundedRect(0, 0, 60, 60, 10);
-    graphics.generateTexture("box", 60, 60);
-    graphics.destroy();
-
-    // Physics sprite
-    this.box = this.physics.add.sprite(width / 2, height / 2, "box");
-    this.box.setCollideWorldBounds(true);
-    this.box.setBounce(0.2);
-
-    // Input — action map via cursor keys
+    this.player = new Player(this, width / 2, height / 2);
     this.cursors = this.input.keyboard!.createCursorKeys();
 
-    // Instructions
     this.add
       .text(
         width / 2,
@@ -41,28 +29,16 @@ export class Game extends Phaser.Scene {
       )
       .setOrigin(0.5);
 
-    // Clean up on scene shutdown to prevent stale listeners
-    this.events.on("shutdown", this.shutdown, this);
+    // Listeners registered on objects that outlive this scene (EventBus, DOM,
+    // registry) must be removed on shutdown, or they leak across scene restarts.
+    const onHit = () => this.cameras.main.shake(100, 0.01);
+    EventBus.on("player-hit", onHit);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off("player-hit", onHit);
+    });
   }
 
-  update(_time: number, _delta: number) {
-    const body = this.box.body as Phaser.Physics.Arcade.Body;
-    body.setVelocity(0);
-
-    if (this.cursors.left.isDown) {
-      body.setVelocityX(-this.moveSpeed);
-    } else if (this.cursors.right.isDown) {
-      body.setVelocityX(this.moveSpeed);
-    }
-
-    if (this.cursors.up.isDown) {
-      body.setVelocityY(-this.moveSpeed);
-    } else if (this.cursors.down.isDown) {
-      body.setVelocityY(this.moveSpeed);
-    }
-  }
-
-  shutdown() {
-    this.events.off("shutdown", this.shutdown, this);
+  update() {
+    this.player.move(this.cursors);
   }
 }
